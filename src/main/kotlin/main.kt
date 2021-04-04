@@ -42,20 +42,6 @@ fun bestMove(board: Board): Int? {
     //            move  score
     var best: Pair<Int, Int>? = null
 
-//    if (board.sideToMove == Side.Cross) {
-//        for (move in board.emptySlots()) {
-//            val score = minimax(board.makeMove(move)!!)
-//            if (best == null || best.second < score)
-//                best = Pair(move, score)
-//        }
-//    } else {
-//        for (move in board.emptySlots()) {
-//            val score = minimax(board.makeMove(move)!!)
-//            if (best == null || best.second > score)
-//                best = Pair(move, score)
-//        }
-//    }
-
     // We loop over every possible move.
     for (move in board.emptySlots()) {
         // Calculate the score of the move using our minimax function.
