@@ -4,7 +4,7 @@ import kotlin.math.min
 fun minimax(board: Board): Int {
     // First, we check if the game is over, and return the score accordingly.
     if (board.isFinished) {
-        return when(board.winner) {
+        return when (board.winner) {
             Side.Cross -> 1
             Side.Circle -> -1
             null -> 0
@@ -42,17 +42,44 @@ fun bestMove(board: Board): Int? {
     //            move  score
     var best: Pair<Int, Int>? = null
 
-    if (board.sideToMove == Side.Cross) {
-        for (move in board.emptySlots()) {
-            val score = minimax(board.makeMove(move)!!)
-            if (best == null || best.second < score)
-                best = Pair(move, score)
+//    if (board.sideToMove == Side.Cross) {
+//        for (move in board.emptySlots()) {
+//            val score = minimax(board.makeMove(move)!!)
+//            if (best == null || best.second < score)
+//                best = Pair(move, score)
+//        }
+//    } else {
+//        for (move in board.emptySlots()) {
+//            val score = minimax(board.makeMove(move)!!)
+//            if (best == null || best.second > score)
+//                best = Pair(move, score)
+//        }
+//    }
+
+    // We loop over every possible move.
+    for (move in board.emptySlots()) {
+        // Calculate the score of the move using our minimax function.
+        val score = minimax(board.makeMove(move)!!)
+
+        // If there isn't a move yet, we don't need to check if
+        // it's better than anything we found previously.
+        if (best == null) {
+            best = Pair(move, score)
+            continue
         }
-    } else {
-        for (move in board.emptySlots()) {
-            val score = minimax(board.makeMove(move)!!)
-            if (best == null || best.second > score)
-                best = Pair(move, score)
+
+        // Check whether the current move is better than the best
+        // move we found so far.
+        val isBetter = when (board.sideToMove) {
+            Side.Cross -> best.second < score
+            Side.Circle -> best.second > score
+        }
+
+        // Set `best` accordingly.
+        best = if (isBetter) {
+            Pair(move, score)
+        } else {
+            best
         }
     }
 
@@ -67,7 +94,7 @@ fun main() {
 
         var move: Int
 
-        if (game.sideToMove == Side.Circle) {
+        if (game.sideToMove != Side.Circle) {
             move = bestMove(game)!!
         } else {
             println("Evaluation: " + minimax(game))
@@ -92,9 +119,11 @@ fun main() {
     }
 
     println(game.toString())
-    println(when(game.winner) {
-        Side.Cross -> "Cross wins!"
-        Side.Circle -> "Circle wins!"
-        null -> "It's a draw!"
-    })
+    println(
+        when (game.winner) {
+            Side.Cross -> "Cross wins!"
+            Side.Circle -> "Circle wins!"
+            null -> "It's a draw!"
+        }
+    )
 }
