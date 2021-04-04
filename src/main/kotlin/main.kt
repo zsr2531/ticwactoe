@@ -80,7 +80,7 @@ fun main() {
 
         var move: Int
 
-        if (game.sideToMove != Side.Circle) {
+        if (game.sideToMove == Side.Circle) {
             move = bestMove(game)!!
         } else {
             println("Evaluation: " + minimax(game))
