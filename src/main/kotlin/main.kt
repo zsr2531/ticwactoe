@@ -1,5 +1,6 @@
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.random.Random
 
 fun minimax(board: Board): Int {
     // First, we check if the game is over, and return the score accordingly.
@@ -39,8 +40,8 @@ fun bestMove(board: Board): Int? {
         return null
 
     // Assume there is no best move yet.
-    //            move  score
-    var best: Pair<Int, Int>? = null
+    var best: Int? = null
+    val moves = MutableList(0) { 0 }
 
     // We loop over every possible move.
     for (move in board.emptySlots()) {
@@ -50,40 +51,66 @@ fun bestMove(board: Board): Int? {
         // If there isn't a move yet, we don't need to check if
         // it's better than anything we found previously.
         if (best == null) {
-            best = Pair(move, score)
+            best = score
+            moves.add(move)
             continue
         }
 
-        // Check whether the current move is better than the best
-        // move we found so far.
+        // Check whether the current score is better than the best
+        // score we found so far.
         val isBetter = when (board.sideToMove) {
-            Side.Cross -> best.second < score
-            Side.Circle -> best.second > score
+            Side.Cross -> best < score
+            Side.Circle -> best > score
         }
 
         // Set `best` accordingly.
-        best = if (isBetter) {
-            Pair(move, score)
-        } else {
-            best
+        best = when {
+            // If we have a new best score, clear the `moves` and add the newly found best move.
+            isBetter -> {
+                moves.clear()
+                moves.add(move)
+                score
+            }
+            // If the move is as good as the `best` score, add it as an alternative.
+            best == score -> {
+                moves.add(move)
+                best
+            }
+            // Otherwise (the move is worse), don't do anything.
+            else -> {
+                best
+            }
         }
     }
 
-    // Return the best move that we found.
-    return best!!.first
+    // Return one of the best moves that we found.
+    return moves[Random.nextInt(moves.size)]
 }
 
 fun main() {
+    val side: Side
+    while (true) {
+        print("Cross or circle? [x/o] ")
+        val input = readLine() ?: continue
+        if (input != "x" && input != "o")
+            continue
+
+        side = when (input) {
+            "x" -> Side.Cross
+            "o" -> Side.Circle
+            else -> throw Exception("Unreachable.")
+        }
+        break
+    }
+
     var game = Board(Side.Cross)
     while (!game.isFinished) {
-        println(game.toString())
-
         var move: Int
 
-        if (game.sideToMove == Side.Circle) {
+        if (game.sideToMove != side) {
             move = bestMove(game)!!
         } else {
-            println("Evaluation: " + minimax(game))
+            println(game.toString())
             while (true) {
                 print("What's your move? ")
                 val input = readLine() ?: continue
